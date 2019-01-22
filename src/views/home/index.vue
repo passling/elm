@@ -1,6 +1,6 @@
 <template>
   <div>
-    <header-top>
+    <header-top sign-up="home">
       <span slot="logo" class="head-logo" @click="readLoad">xiaomao</span>
     </header-top>
     <nav class="city-nav">
@@ -72,22 +72,22 @@
     },
     methods: {
       readLoad () {
-            window.location.reload()
+        window.location.reload()
       },
       queryCityGuess () {
         getCityGuess().then(resp => {
-          this.guessCity = resp.data.name
-          this.guessCityId = resp.data.id
+          this.guessCity = resp.name
+          this.guessCityId = resp.id
         })
       },
       queryHotCity () {
         getHotCity({type: 'hot'}).then(resp => {
-          this.hotCity = resp.data
+          this.hotCity = resp
         })
       },
       queryGroupCity () {
         getGroupCity({type: 'group'}).then(resp => {
-          this.groupCity = resp.data
+          this.groupCity = resp
         })
       }
     },

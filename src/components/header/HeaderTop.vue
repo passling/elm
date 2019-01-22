@@ -1,15 +1,25 @@
 <template>
   <div class="head-top">
     <slot name="logo"></slot>
-    <router-link to='./home' class="head-login" v-if="">
+    <router-link to='./home' class="head-login" v-if="signUp">
       <span class="login-span">登录|注册</span>
     </router-link>
+    <section v-if="headTitle" class="title-head ellipsis">
+      <span class="title-text">{{headTitle}}</span>
+    </section>
+    <slot name="changeCity"></slot>
   </div>
 </template>
 
 <script>
     export default {
-        name: "index"
+      props: {
+        signUp: String,
+        headTitle: String
+      },
+      data () {
+        return {}
+      }
     }
 </script>
 
@@ -29,6 +39,17 @@
     @include ct;
     .login-span{
       color: #fff;
+    }
+  }
+  .title-head {
+    @include center;
+    width: 50%;
+    color: #fff;
+    text-align: center;
+    .title-text {
+      @include sc(0.8rem, #fff);
+      text-align: center;
+      font-weight: bold;
     }
   }
 </style>
