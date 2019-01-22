@@ -1,7 +1,7 @@
 <template>
   <div class="head-top">
     <slot name="logo"></slot>
-    <router-link to='./home' class="head-login">
+    <router-link to='./home' class="head-login" v-if="">
       <span class="login-span">登录|注册</span>
     </router-link>
   </div>
