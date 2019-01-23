@@ -8,6 +8,7 @@
       <span class="title-text">{{headTitle}}</span>
     </section>
     <slot name="changeCity"></slot>
+    <slot name="mySite"></slot>
   </div>
 </template>
 
