@@ -44,6 +44,23 @@
       }
     }
   }
+  .shop-list-container{
+    margin-top: .4rem;
+    border-top: .025rem solid $bc;
+    background-color: #fff;
+    .shop-header{
+      .shop-icon{
+        fill: #999;
+        margin-left: .6rem;
+        vertical-align: middle;
+        @include wh(.6rem, .6rem)
+      }
+      .shop-header-title{
+        color: #999;
+        @include font(.55rem, 1.6rem)
+      }
+    }
+  }
 </style>
 <template>
     <div>
@@ -53,34 +70,46 @@
         </router-link>
       </header-top>
       <nav class="my-site-nav">
-        <div class="swiper-container">
-          <div class="swiper-wrapper">
-            <div class="swiper-slide food-types-container" v-for="(item, index) in foodTypes">
+        <div class="swiper-container" v-if="foodTypes.length">
+          <swiper ref="mySwiper" :options="swiperOption">
+            <swiper-slide class="food-types-container" v-for="(item, index) in foodTypes">
               <router-link
                 v-for="foodItem in item"
                 :key="foodItem.id"
-                :to="{path: '/food', query: {geoHash, title: foodItem.title}}"
+                :to="{path: '/food', query: {geoHash, title: foodItem.title, restaurant_category_id: getCategoryId(foodItem.link)}}"
                 class="link-to-food">
                 <figure>
                   <img :src="imgBaseUrl + foodItem.image_url">
                   <figcaption>{{foodItem.title}}</figcaption>
                 </figure>
               </router-link>
-            </div>
-          </div>
+            </swiper-slide>
+            <div class="swiper-pagination" slot="pagination"></div>
+          </swiper>
         </div>
       </nav>
+      <div class="shop-list-container">
+        <header class="shop-header">
+          <svg class="shop-icon">
+            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#shop"></use>
+          </svg>
+          <span class="shop-header-title">附近商家</span>
+        </header>
+        <shop-list v-if="hasGetPosition" :geo-hash="geoHash"></shop-list>
+      </div>
     </div>
 </template>
 
 <script>
   // 组件
   import HeaderTop from '../../components/header/HeaderTop'
-  import Swiper from 'swiper'
-
+  import ShopList from '../../components/ShopLlist'
+  import { swiper, swiperSlide } from 'vue-awesome-swiper'
+  import 'swiper/dist/css/swiper.css'
   // api
   import {getCityGuess} from '../../api/home'
   import {getMySiteAddress, getMySiteFoodTypes} from '../../api/mySite'
+  import {mapMutations} from 'vuex'
 
   export default {
     data () {
@@ -89,6 +118,10 @@
         mySiteTitle: '请选择地址...',
         foodTypes: [],
         imgBaseUrl: 'https://fuss10.elemecdn.com', //图片域名地址
+        swiperOption: {
+          pagination: {el: ".swiper-pagination"}
+        },
+        hasGetPosition: false
       }
     },
     created () {
@@ -100,8 +133,12 @@
       } else {
         this.geoHash = lngLag
       }
+      this.SAVE_GEOHASH(this.geoHash)
       getMySiteAddress(this.geoHash).then(resp => {
         this.mySiteTitle = resp.name
+        // 记录当前经度纬度
+        this.RECORD_ADDRESS(resp)
+        this.hasGetPosition = true
       })
       getMySiteFoodTypes({geohash: this.geohash}).then(resp => {
         const length = resp.length
@@ -111,22 +148,30 @@
           foodArr[j] = resArr.splice(0, 8)
         }
         this.foodTypes = foodArr
-        new Swiper('.swiper-container', {
-          pagination: '.swiper-pagination',
-          loop: true
-        })
       })
     },
-    beforeMount () {
-
-    },
+    mounted() {},
     methods: {
-      getCategoryId(rul) {
-
+      ...mapMutations(['SAVE_GEOHASH', 'RECORD_ADDRESS']),
+      getCategoryId(url) {
+        const urlData = decodeURIComponent(url.split('=')[1].replace('&target_name',''))
+        if (/restaurant_category_id/gi.test(urlData)) {
+          return JSON.parse(urlData).restaurant_category_id.id
+        }else{
+          return ''
+        }
+      },
+    },
+    computed: {
+      swiper() {
+        return this.$refs.mySwiper.swiper
       }
     },
     components: {
-      HeaderTop
+      HeaderTop,
+      swiper,
+      swiperSlide,
+      ShopList
     }
   }
 </script>

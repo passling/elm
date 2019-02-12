@@ -16,3 +16,18 @@ export function getMySiteFoodTypes(params) {
     }, params)
   })
 }
+export function getShopList(params) {
+  return req({
+    url: '/shopping/restaurants',
+    type: 'GET',
+    params: Object.assign({
+      limit: '20',
+      'extras[]': 'activities',
+      keyword: '',
+      'restaurant_category_ids[]': '',
+      order_by: '',
+      restaurant_category_id: '',
+      'delivery_mode[]': ''
+    }, params)
+  })
+}

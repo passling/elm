@@ -4,6 +4,7 @@ import App from './App.vue'
 import home from './views/home/index.vue'
 import city from './views/city/index.vue'
 import mySite from './views/mySite/index.vue'
+import shop from './views/shop/index.vue'
 
 Vue.use(Router)
 
@@ -26,6 +27,10 @@ export default new Router({
       }, {
         path: '/mysite',
         component: mySite,
+        meta: { keepAlive: true }
+      }, {
+        path: '/shop',
+        component: shop,
         meta: { keepAlive: true }
       }]
     }
