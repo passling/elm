@@ -97,6 +97,7 @@
         </header>
         <shop-list v-if="hasGetPosition" :geo-hash="geoHash"></shop-list>
       </div>
+      <footer-guide></footer-guide>
     </div>
 </template>
 
@@ -104,6 +105,7 @@
   // 组件
   import HeaderTop from '../../components/header/HeaderTop'
   import ShopList from '../../components/ShopLlist'
+  import FooterGuide from '../../components/FooterGuide'
   import { swiper, swiperSlide } from 'vue-awesome-swiper'
   import 'swiper/dist/css/swiper.css'
   // api
@@ -171,7 +173,8 @@
       HeaderTop,
       swiper,
       swiperSlide,
-      ShopList
+      ShopList,
+      FooterGuide
     }
   }
 </script>
