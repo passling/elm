@@ -74,7 +74,7 @@
 </style>
 <template>
     <div class="city-container">
-      <header-top :head-title="cityName">
+      <header-top :head-title="cityName" go-back="true">
         <router-link to="/home" slot="changeCity" class="change-city">切换城市</router-link>
       </header-top>
       <form class="city-form" v-on:submit.prevent>

@@ -1,6 +1,6 @@
 <template>
     <div class="shop-list-container">
-      <ul>
+      <ul v-load-more="loaderMore" v-if="shopList.length" type="1">
         <router-link
         :to="{path: '/shop',query:{geoHash, id: item.id}}"
         v-for="item in shopList"
@@ -54,13 +54,33 @@
           </hgroup>
         </router-link>
       </ul>
+      <ul v-else class="animation-opacity">
+        <li class="list-back-li"  v-for="item in 10" :key="item">
+          <img src="../../images/shopback.svg" class="list-back-svg">
+        </li>
+      </ul>
+      <p v-if="isEnd" class="empty-data">没有更多了</p>
+      <aside class="return-top" v-if="showBackStatus" @click="backTop">
+        <svg class="back-top-svg">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#backtop"></use>
+        </svg>
+      </aside>
+      <transition name="loading">
+        <loading v-show="showLoading"></loading>
+      </transition>
     </div>
 </template>
 
 <script>
+    // 组件
     import RatingStart from '../RatingStart'
+    import loading from '../loading'
+    // api
     import {mapState} from 'vuex'
     import {getShopList} from '../../api/mySite'
+    import {loadMore} from '../../utils/mixin'
+    import {animate, showBack} from '../../utils/utils'
+
     export default {
       props: {
         geoHash: String
@@ -70,20 +90,36 @@
           imgBaseUrl: '//elm.cangdu.org/img/',
           shopList: [], // 店铺列表数据
           offset: 0, // 每次加载20个 limit = 20
+          isEnd: false,
+          preventRepeatRequest: false,
+          showLoading: false,
+          showBackStatus: false
         }
       },
       computed: {
         ...mapState(['latitude',
           'longitude'])
       },
+      mixins: [loadMore],
+      created () {
+        showBack(status => {
+          this.showBackStatus = status
+        })
+      },
       methods: {
         init () {
+          this.showLoading = true
           getShopList({
             latitude: this.latitude,
             longitude: this.longitude,
             offset: this.offset,
           }).then(resp => {
-              this.shopList = [...resp]
+              this.shopList = [...this.shopList, ...resp]
+              if (resp.length < 20) {
+                this.isEnd = true
+              }
+              this.preventRepeatRequest = false
+              this.showLoading = false
           })
         },
         zhunShi (supports) {
@@ -98,13 +134,23 @@
             zhunStatus = false;
           }
           return zhunStatus
+        },
+        loaderMore () {
+          if (this.isEnd || this.preventRepeatRequest) return
+          this.preventRepeatRequest = true
+          this.offset += 20
+          this.init()
+        },
+        backTop () {
+          animate(document.documentElement, {scrollTop: '0'}, 400, 'ease-out')
         }
       },
       mounted () {
         this.init()
       },
       components: {
-        RatingStart
+        RatingStart,
+        loading
       }
     }
 </script>
@@ -227,5 +273,17 @@
       }
     }
   }
-
+  .empty-data{
+    @include font(.6rem, 3);
+    text-align: center;
+    color: #333;
+  }
+  .return-top{
+    position: fixed;
+    bottom: 3rem;
+    right: 1rem;
+    .back-top-svg{
+      @include wh(2rem, 2rem)
+    }
+  }
 </style>

@@ -4,6 +4,11 @@
     <router-link to='./home' class="head-login" v-if="signUp">
       <span class="login-span">登录|注册</span>
     </router-link>
+    <section class="head-go-back" v-if="goBack" @click="$router.go(-1)">
+      <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" version="1.1">
+        <polyline points="12,18 4,9 12,0" style="fill:none;stroke:rgb(255,255,255);stroke-width:2"/>
+      </svg>
+    </section>
     <section v-if="headTitle" class="title-head ellipsis">
       <span class="title-text">{{headTitle}}</span>
     </section>
@@ -16,7 +21,8 @@
     export default {
       props: {
         signUp: String,
-        headTitle: String
+        headTitle: String,
+        goBack: String
       },
       data () {
         return {}
@@ -41,6 +47,12 @@
     .login-span{
       color: #fff;
     }
+  }
+  .head-go-back{
+    left: .4rem;
+    @include wh(.6rem, 1rem);
+    line-height: 2.2rem;
+    margin-left: .4rem;
   }
   .title-head {
     @include center;
