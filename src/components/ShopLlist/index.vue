@@ -1,162 +1,6 @@
-<template>
-    <div class="shop-list-container">
-      <ul v-load-more="loaderMore" v-if="shopList.length" type="1">
-        <router-link
-        :to="{path: '/shop',query:{geoHash, id: item.id}}"
-        v-for="item in shopList"
-        :key="item.id"
-        tag="li"
-        class="shop-li"
-        >
-          <section>
-            <img :src="imgBaseUrl+item.image_path" class="shop-img">
-          </section>
-          <hgroup class="shop-right">
-            <header class="shop-detail-header">
-              <h4 :class="item.is_premium? 'premium': ''"  class="shop-title ellipsis">{{item.name}}</h4>
-              <ul class="shop-detail-ul">
-                <li
-                  v-for="cItem in item.supports"
-                  :key="cItem.id" class="supports"
-                >{{cItem.icon_name}}</li>
-              </ul>
-            </header>
-            <h5 class="rating-order-num">
-              <section class="rating-order-num-left">
-                <section class="rating-section">
-                  <rating-start :rating='item.rating'></rating-start>
-                  <span class="rating-num">{{item.rating}}</span>
-                </section>
-                <section class="order-section">
-                  月售{{item.recent_order_num}}单
-                </section>
-              </section>
-              <section class="rating-order-num-right">
-                <span class="delivery-style delivery-left" v-if="item.delivery_mode">{{item.delivery_mode.text}}</span>
-                <span class="delivery-style delivery-right" v-if="zhunShi(item.supports)">准时达</span>
-              </section>
-            </h5>
-            <h5 class="fee-distance">
-              <p class="fee">
-                ￥{{item.float_minimum_order_amount}}起送
-                <span class="segmentation">/</span>
-                {{item.piecewise_agent_fee.tips}}
-              </p>
-              <p class="distance-time">
-							<span v-if="Number(item.distance)">{{item.distance > 1000? (item.distance/1000).toFixed(2) + 'km': item.distance + 'm'}}
-								<span class="segmentation">/</span>
-							</span>
-                <span v-else>{{item.distance}}</span>
-                <span class="segmentation">/</span>
-                <span class="order-time">{{item.order_lead_time}}</span>
-              </p>
-            </h5>
-          </hgroup>
-        </router-link>
-      </ul>
-      <ul v-else class="animation-opacity">
-        <li class="list-back-li"  v-for="item in 10" :key="item">
-          <img src="../../images/shopback.svg" class="list-back-svg">
-        </li>
-      </ul>
-      <p v-if="isEnd" class="empty-data">没有更多了</p>
-      <aside class="return-top" v-if="showBackStatus" @click="backTop">
-        <svg class="back-top-svg">
-          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#backtop"></use>
-        </svg>
-      </aside>
-      <transition name="loading">
-        <loading v-show="showLoading"></loading>
-      </transition>
-    </div>
-</template>
-
-<script>
-    // 组件
-    import RatingStart from '../RatingStart'
-    import loading from '../loading'
-    // api
-    import {mapState} from 'vuex'
-    import {getShopList} from '../../api/mySite'
-    import {loadMore} from '../../utils/mixin'
-    import {animate, showBack} from '../../utils/utils'
-
-    export default {
-      props: {
-        geoHash: String
-      },
-      data () {
-        return {
-          imgBaseUrl: '//elm.cangdu.org/img/',
-          shopList: [], // 店铺列表数据
-          offset: 0, // 每次加载20个 limit = 20
-          isEnd: false,
-          preventRepeatRequest: false,
-          showLoading: false,
-          showBackStatus: false
-        }
-      },
-      computed: {
-        ...mapState(['latitude',
-          'longitude'])
-      },
-      mixins: [loadMore],
-      created () {
-        showBack(status => {
-          this.showBackStatus = status
-        })
-      },
-      methods: {
-        init () {
-          this.showLoading = true
-          getShopList({
-            latitude: this.latitude,
-            longitude: this.longitude,
-            offset: this.offset,
-          }).then(resp => {
-              this.shopList = [...this.shopList, ...resp]
-              if (resp.length < 20) {
-                this.isEnd = true
-              }
-              this.preventRepeatRequest = false
-              this.showLoading = false
-          })
-        },
-        zhunShi (supports) {
-          let zhunStatus
-          if ((supports instanceof Array) && supports.length) {
-            supports.forEach(item => {
-              if (item.icon_name === '准') {
-                zhunStatus = true;
-              }
-            })
-          }else{
-            zhunStatus = false;
-          }
-          return zhunStatus
-        },
-        loaderMore () {
-          if (this.isEnd || this.preventRepeatRequest) return
-          this.preventRepeatRequest = true
-          this.offset += 20
-          this.init()
-        },
-        backTop () {
-          animate(document.documentElement, {scrollTop: '0'}, 400, 'ease-out')
-        }
-      },
-      mounted () {
-        this.init()
-      },
-      components: {
-        RatingStart,
-        loading
-      }
-    }
-</script>
 
 <style lang="scss" scoped>
-  @import '../..//style/mixin.scss';
+  @import '../../style/mixin.scss';
   .shop-list-container{
     background: #fff;
     margin-bottom: 2rem;
@@ -287,3 +131,191 @@
     }
   }
 </style>
+<template>
+    <div class="shop-list-container">
+      <ul v-load-more="loaderMore" v-if="shopList.length" type="1">
+        <router-link
+        :to="{path: '/shop',query:{geoHash, id: item.id}}"
+        v-for="item in shopList"
+        :key="item.id"
+        tag="li"
+        class="shop-li"
+        >
+          <section>
+            <img :src="imgBaseUrl+item.image_path" class="shop-img">
+          </section>
+          <hgroup class="shop-right">
+            <header class="shop-detail-header">
+              <h4 :class="item.is_premium? 'premium': ''"  class="shop-title ellipsis">{{item.name}}</h4>
+              <ul class="shop-detail-ul">
+                <li
+                  v-for="cItem in item.supports"
+                  :key="cItem.id" class="supports"
+                >{{cItem.icon_name}}</li>
+              </ul>
+            </header>
+            <h5 class="rating-order-num">
+              <section class="rating-order-num-left">
+                <section class="rating-section">
+                  <rating-start :rating='item.rating'></rating-start>
+                  <span class="rating-num">{{item.rating}}</span>
+                </section>
+                <section class="order-section">
+                  月售{{item.recent_order_num}}单
+                </section>
+              </section>
+              <section class="rating-order-num-right">
+                <span class="delivery-style delivery-left" v-if="item.delivery_mode">{{item.delivery_mode.text}}</span>
+                <span class="delivery-style delivery-right" v-if="zhunShi(item.supports)">准时达</span>
+              </section>
+            </h5>
+            <h5 class="fee-distance">
+              <p class="fee">
+                ￥{{item.float_minimum_order_amount}}起送
+                <span class="segmentation">/</span>
+                {{item.piecewise_agent_fee.tips}}
+              </p>
+              <p class="distance-time">
+							<span v-if="Number(item.distance)">{{item.distance > 1000? (item.distance/1000).toFixed(2) + 'km': item.distance + 'm'}}
+								<span class="segmentation">/</span>
+							</span>
+                <span v-else>{{item.distance}}</span>
+                <span class="segmentation">/</span>
+                <span class="order-time">{{item.order_lead_time}}</span>
+              </p>
+            </h5>
+          </hgroup>
+        </router-link>
+      </ul>
+      <ul v-else class="animation-opacity">
+        <li class="list-back-li"  v-for="item in 10" :key="item">
+          <img src="../../images/shopback.svg" class="list-back-svg">
+        </li>
+      </ul>
+      <p v-if="isEnd" class="empty-data">没有更多了</p>
+      <aside class="return-top" v-if="showBackStatus" @click="backTop">
+        <svg class="back-top-svg">
+          <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#backtop"></use>
+        </svg>
+      </aside>
+      <transition name="loading">
+        <loading v-show="showLoading"></loading>
+      </transition>
+    </div>
+</template>
+
+<script>
+    // 组件
+    import RatingStart from '../RatingStart'
+    import loading from '../loading'
+    // api
+    import {mapState} from 'vuex'
+    import {getShopList} from '../../api/mySite'
+    import {loadMore} from '../../utils/mixin'
+    import {animate, showBack} from '../../utils/utils'
+
+    export default {
+      props: {
+        geoHash: String,               // 位置
+        restaurantCategoryId: String,  // 分类id
+        restaurantCategoryIds: String, // 分类下具体商品具id
+        sortByType: String,              //排序方式
+        deliveryMode: Number,          // 配送方式
+        supportIds: Number,            // 商家属性
+        confirmStatus: Boolean
+      },
+      data () {
+        return {
+          imgBaseUrl: '//elm.cangdu.org/img/',
+          shopList: [], // 店铺列表数据
+          offset: 0, // 每次加载20个 limit = 20
+          isEnd: false,
+          preventRepeatRequest: false,
+          showLoading: false,
+          showBackStatus: false
+        }
+      },
+      computed: {
+        ...mapState(['latitude',
+          'longitude'])
+      },
+      mixins: [loadMore],
+      created () {
+        showBack(status => {
+          this.showBackStatus = status
+        })
+      },
+      methods: {
+        init () {
+          this.showLoading = true
+          let supportStr = ''
+          if (this.supportIds && this.supportIds.length) {
+            for (const item of this.supportIds) {
+              if (item.status) {
+                supportStr += '&support_ids[]=' + item.id
+              }
+            }
+          }
+
+          getShopList({
+            latitude: this.latitude,
+            longitude: this.longitude,
+            offset: this.offset,
+            restaurant_category_id: this.restaurantCateGoryId || '',  // 分类id
+            'restaurant_category_ids[]': this.restaurantCateGoryIds || '', // 分类下具体商品具id
+            order_by: this.sortByType || '',              //排序方式
+            deliveryMode: this.deliveryMode || '',          // 配送方式
+            'delivery_mode[]': this.deliveryMode + supportStr || '',
+          }).then(resp => {
+              this.shopList = [...this.shopList, ...resp]
+              if (resp.length < 20) {
+                this.isEnd = true
+              }
+              this.preventRepeatRequest = false
+              this.showLoading = false
+          })
+        },
+        zhunShi (supports) {
+          let zhunStatus
+          if ((supports instanceof Array) && supports.length) {
+            supports.forEach(item => {
+              if (item.icon_name === '准') {
+                zhunStatus = true;
+              }
+            })
+          }else{
+            zhunStatus = false;
+          }
+          return zhunStatus
+        },
+        loaderMore () {
+          if (this.isEnd || this.preventRepeatRequest) return
+          this.preventRepeatRequest = true
+          this.offset += 20
+          this.init()
+        },
+        backTop () {
+          animate(document.documentElement, {scrollTop: '0'}, 400, 'ease-out')
+        }
+      },
+      mounted () {
+        this.init()
+      },
+      components: {
+        RatingStart,
+        loading
+      },
+      watch: {
+        restaurantCategoryIds: function () {
+          this.init()
+        },
+        sortByType: function () {
+          this.init()
+        },
+        confirmStatus: function () {
+          this.init()
+        }
+      }
+    }
+</script>
+

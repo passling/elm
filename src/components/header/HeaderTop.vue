@@ -14,6 +14,7 @@
     </section>
     <slot name="changeCity"></slot>
     <slot name="mySite"></slot>
+    <slot name="search"></slot>
   </div>
 </template>
 
