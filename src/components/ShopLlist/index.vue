@@ -217,11 +217,11 @@
     export default {
       props: {
         geoHash: String,               // 位置
-        restaurantCategoryId: String,  // 分类id
+        restaurantCategoryId: Number,  // 分类id
         restaurantCategoryIds: String, // 分类下具体商品具id
         sortByType: String,              //排序方式
         deliveryMode: Number,          // 配送方式
-        supportIds: Number,            // 商家属性
+        supportIds: Array,            // 商家属性
         confirmStatus: Boolean
       },
       data () {
