@@ -1,6 +1,7 @@
 import {
   SAVE_GEOHASH,
-  RECORD_ADDRESS, ADD_CART, INIT_BUY_CART, REDUCE_CART
+  RECORD_ADDRESS, ADD_CART, INIT_BUY_CART, REDUCE_CART,
+  CLEAR_CART
 } from './mutation-type'
 import {setStore, getStore} from '../utils/utils'
 
@@ -56,7 +57,11 @@ export default {
         item[foodId] = null
       }
     }
+  },
+  [CLEAR_CART] (state, shopId) {
+    state.cartList[shopId] = null
+    state.cartList = {...state.cartList}
+    setStore('buyCart', state.cartList)
   }
-
 
 }

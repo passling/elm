@@ -670,6 +670,12 @@
     background-color: rgba(0,0,0,.3);
     z-index: 11;
   }
+  .toggle-cart-enter-active,.toggle-cart-leave-active{
+    transition: all .3s ease-out;
+  }
+  .toggle-cart-enter, .toggle-cart-leave-active {
+    transform: translateY(100%);
+  }
 </style>
 <template>
     <div>
@@ -853,7 +859,7 @@
                     <svg>
                       <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-remove"></use>
                     </svg>
-                    <span class="clear-cart">清空</span>
+                    <span @click="clearCart" class="clear-cart">清空</span>
                   </div>
                 </header>
                 <section class="cart-food-detail">
@@ -873,12 +879,12 @@
                       </div>
                       <section class="cart-list-control">
                         <span>
-                          <svg>
+                          <svg @click="removeOutCart(item)">
                             <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-minus"></use>
                           </svg>
                         </span>
                         <span class="cart-num">{{item.num}}</span>
-                        <svg class="cart-add">
+                        <svg @click="addToCart(item)" class="cart-add">
                           <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#cart-add"></use>
                         </svg>
                       </section>
@@ -1002,7 +1008,7 @@
     },
     mixins: [getImgPath],
     methods: {
-      ...mapMutations(['RECORD_ADDRESS', 'ADD_CART', 'INIT_BUY_CART']),
+      ...mapMutations(['RECORD_ADDRESS', 'ADD_CART', 'INIT_BUY_CART', 'REDUCE_CART', 'CLEAR_CART']),
       init () {
         this.geoHash = this.$route.query.geoHash
         this.shopId = this.$route.query.id
@@ -1156,6 +1162,22 @@
         })
         this.totalPrice = this.totalPrice.toFixed(2)
         this.categoryNum = [...newArr]
+      },
+      removeOutCart (foods) {
+        const {categoryId, itemId, foodId, specs} = foods
+        this.REDUCE_CART({shopId: this.shopId, categoryId, itemId, foodId, specs})
+      },
+      addToCart(foods) {
+        const food = {
+          category_id: foods.categoryId,
+          item_id: foods.itemId
+        }
+        foods.food_id = foods.foodId
+        this.ADD_CART({shopId: this.shopId, food, currentFood: foods, specs:foods.specs})
+      },
+      clearCart () {
+        this.showCartList=!this.showCartList
+        this.CLEAR_CART(this.shopId)
       }
     },
     watch: {
